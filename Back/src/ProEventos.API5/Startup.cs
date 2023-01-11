@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using ProEventos.Api5.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProEventos.API5
 {
@@ -27,7 +29,11 @@ namespace ProEventos.API5
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddDbContext<DataContext>(
+                context => context.UseSqlite(Configuration.GetConnectionString("Default"))
+            );
             services.AddControllers();
+            services.AddCors();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProEventos.API5", Version = "v1" });
@@ -49,6 +55,11 @@ namespace ProEventos.API5
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseCors(x => x.AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowAnyOrigin()
+            );
 
             app.UseEndpoints(endpoints =>
             {
